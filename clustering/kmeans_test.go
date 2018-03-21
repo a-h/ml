@@ -1,6 +1,7 @@
 package clustering
 
 import (
+	"math/rand"
 	"testing"
 
 	"github.com/a-h/ml/distance"
@@ -224,4 +225,25 @@ func TestRandomlyAssign(t *testing.T) {
 				expectedCount, actualCount)
 		}
 	}
+}
+
+func BenchmarkFib10(b *testing.B) {
+	var data = generateData(100, 10000)
+	b.ReportAllocs()
+	b.ResetTimer()
+	for n := 0; n < b.N; n++ {
+		KMeans(data, 100, distance.Euclidean)
+	}
+}
+
+func generateData(vectorLength, quantity int) (rv []Vector) {
+	rv = make([]Vector, quantity)
+	for i := 0; i < quantity; i++ {
+		itm := make([]float64, vectorLength)
+		for j := 0; j < vectorLength; j++ {
+			itm[j] = rand.Float64()
+		}
+		rv[i] = Vector(itm)
+	}
+	return
 }

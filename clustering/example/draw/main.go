@@ -55,7 +55,7 @@ func main() {
 	for i, cluster := range clusters {
 		scatter := convert2DVectorToPlotterXY(cluster)
 		// Add them to the chart.
-		err = addScatters(p, i, strconv.Itoa(i), scatter)
+		err = addScatters(p, i, strconv.Itoa(i+1), scatter)
 		if err != nil {
 			panic(err)
 		}
@@ -99,17 +99,13 @@ func randomise(v []float64, min, max int) {
 }
 
 func addScatters(plt *plot.Plot, index int, name string, xyers plotter.XYs) error {
-	var ps []plot.Plotter
-
 	s, err := plotter.NewScatter(xyers)
 	if err != nil {
 		return err
 	}
 	s.Color = plotutil.Color(index)
 	s.Shape = plotutil.Shape(index)
-	ps = append(ps, s)
-
-	plt.Add(ps...)
+	plt.Add(s)
 
 	plt.Legend.Add(name)
 	return nil

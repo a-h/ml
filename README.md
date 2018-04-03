@@ -4,10 +4,15 @@ A collection of functions and algorithms for machine learning.
 
 ## Distance
 
-* Chebyshev
-* Euclidean
-* Manhattan
+* `distance.Chebyshev`
+* `distance.Euclidean`
+* `distance.Manhattan`
 
 ## Clustering
 
-* KMeans
+* `clustering.KMeans`
+
+## Error Calculation
+
+* `distance.SumOfSquares`
+* `distance.RootMeanSquare`

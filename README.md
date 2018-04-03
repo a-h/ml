@@ -18,7 +18,7 @@ A collection of functions and algorithms for machine learning.
 * `distance.MeanSquare`
 * `distance.RootMeanSquare`
 
-## RBF functions
+## Radial basis functions (RBFs)
 
 * `rbf.Gaussian`
 * `rbf.RickerWavelet`

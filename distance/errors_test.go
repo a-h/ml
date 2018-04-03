@@ -21,22 +21,37 @@ func TestErrors(t *testing.T) {
 			q:        []float64{3, 3},
 			expected: ErrMismatchedVectorLengths,
 		},
+		{
+			name:     "Nil input p",
+			p:        nil,
+			q:        []float64{3, 3},
+			expected: ErrNilVector,
+		},
+		{
+			name:     "Nil input q",
+			p:        []float64{-1},
+			q:        nil,
+			expected: ErrNilVector,
+		},
 	}
 
 	for _, test := range tests {
-		testDistance("Chebyshev", func() (d float64, err error) {
+		testFunction("Chebyshev", func() (d float64, err error) {
 			return Chebyshev(test.p, test.q)
 		}, test.expected, t)
-		testDistance("Euclidean", func() (d float64, err error) {
+		testFunction("Euclidean", func() (d float64, err error) {
 			return Euclidean(test.p, test.q)
 		}, test.expected, t)
-		testDistance("Manhattan", func() (d float64, err error) {
+		testFunction("Manhattan", func() (d float64, err error) {
 			return Manhattan(test.p, test.q)
+		}, test.expected, t)
+		testFunction("SumOfSquares", func() (d float64, err error) {
+			return SumOfSquares(test.p, test.q)
 		}, test.expected, t)
 	}
 }
 
-func testDistance(name string, function func() (d float64, err error), expected error, t *testing.T) {
+func testFunction(name string, function func() (d float64, err error), expected error, t *testing.T) {
 	_, actual := function()
 	if actual == nil {
 		t.Errorf("%s: expected %v, but got nil", name, expected)

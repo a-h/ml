@@ -15,4 +15,5 @@ A collection of functions and algorithms for machine learning.
 ## Error Calculation
 
 * `distance.SumOfSquares`
+* `distance.MeanSquare`
 * `distance.RootMeanSquare`

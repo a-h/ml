@@ -12,8 +12,13 @@ A collection of functions and algorithms for machine learning.
 
 * `clustering.KMeans`
 
-## Error Calculation
+## Error calculation
 
 * `distance.SumOfSquares`
 * `distance.MeanSquare`
 * `distance.RootMeanSquare`
+
+## RBF functions
+
+* `rbf.Gaussian`
+* `rbf.RickerWavelet`

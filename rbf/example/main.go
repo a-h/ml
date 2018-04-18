@@ -33,16 +33,19 @@ func main() {
 	p.Y.Padding = 0
 	p.Y.Label.Text = "Y"
 
+	g := rbf.NewGaussian(1.0, 0.0, 0.5)
+	rw := rbf.NewRickerWavelet(1.0, 0.0, 1.0)
+
 	var gaussian, rickerwavelet plotter.XYs
 	step := 0.1
 	for i := -6.0; i < 6.0; i += step {
 		gaussian = append(gaussian, xy{
 			X: float64(i),
-			Y: rbf.Gaussian(float64(i)),
+			Y: g(float64(i)),
 		})
 		rickerwavelet = append(rickerwavelet, xy{
 			X: float64(i),
-			Y: rbf.RickerWavelet(float64(i)),
+			Y: rw(float64(i)),
 		})
 	}
 

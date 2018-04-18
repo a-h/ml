@@ -4,7 +4,11 @@ import (
 	"math"
 )
 
-// RickerWavelet radial basis function (RBF).
-func RickerWavelet(r float64) float64 {
-	return (1.0 - (r * r)) * math.Pow(math.E, (-(r*r)/2))
+// NewRickerWavelet radial basis function (RBF).
+func NewRickerWavelet(a, b, c float64) Function {
+	return func(x float64) float64 {
+		numerator := (b - x) * (b - x)
+		denominator := 2.0 * (c * c)
+		return (a - (x * x)) * math.Pow(math.E, -(numerator/denominator))
+	}
 }

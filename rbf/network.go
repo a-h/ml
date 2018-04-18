@@ -1,23 +1,44 @@
 package rbf
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 
 	"github.com/a-h/ml/distance"
+	"github.com/a-h/ml/random"
 )
+
+// NewNeuron returns a new neuron.
+func NewNeuron(inputCount int, outputCount int) *Neuron {
+	return &Neuron{
+		InputWeights:  random.Float64Vector(-100, 100, inputCount),
+		Centroid:      random.Float64Vector(-100, 100, inputCount),
+		Distance:      distance.Euclidean,
+		Center:        random.Float64(-100, 100),
+		Width:         random.Float64(-100, 100),
+		OutputWeights: random.Float64Vector(-100, 100, outputCount),
+	}
+}
 
 // Neuron defines an RBF neuron in an RBF network.
 type Neuron struct {
-	InputWeights  []float64
-	Centroid      []float64
-	Distance      distance.Function
-	RBF           Function
+	InputWeights []float64
+	Centroid     []float64
+	Distance     distance.Function `json:"-"`
+	// RBF function parameters.
+	Center        float64
+	Width         float64
 	OutputWeights []float64
 }
 
+func (n Neuron) String() string {
+	b, _ := json.Marshal(n)
+	return string(b)
+}
+
 // Calculate the output of the neuron.
-func (n Neuron) Calculate(input []float64) (op []float64, err error) {
+func (n *Neuron) Calculate(input []float64) (op []float64, err error) {
 	if len(n.InputWeights) != len(input) {
 		err = fmt.Errorf("rbf: the input vector has a length of %d values and should have the same number of input weights, but we have %d neuron input weights",
 			len(input), len(n.InputWeights))
@@ -38,7 +59,7 @@ func (n Neuron) Calculate(input []float64) (op []float64, err error) {
 	}
 
 	// Scale the distance using the RBF function then multiply by the scalar output weights.
-	output := n.RBF(d)
+	output := NewGaussian(1.0, n.Width, n.Center)(d)
 	op = make([]float64, len(n.OutputWeights))
 	for i, outputWeight := range n.OutputWeights {
 		op[i] = output * outputWeight
@@ -47,8 +68,29 @@ func (n Neuron) Calculate(input []float64) (op []float64, err error) {
 }
 
 // OutputCount returns the number of output nodes.
-func (n Neuron) OutputCount() int {
+func (n *Neuron) OutputCount() int {
 	return len(n.OutputWeights)
+}
+
+func (n *Neuron) GetMemory() (op []float64) {
+	//TODO: Benchmark this approach and check that it's OK. I think it is given Go's slice internals.
+	op = append(op, n.InputWeights...)
+	op = append(op, n.Center)
+	op = append(op, n.Width)
+	op = append(op, n.OutputWeights...)
+	return
+}
+
+func (n *Neuron) SetMemory(m []float64) {
+	//TODO: Add error handling here, check the lengths etc. Lots of opportunities to panic here.
+	var index int
+	n.InputWeights = m[index:len(n.InputWeights)]
+	index = len(n.InputWeights)
+	n.Center = m[index]
+	index++
+	n.Width = m[index]
+	index++
+	n.OutputWeights = m[index:]
 }
 
 // NewBias creates a bias node with the specified number of outputs.
@@ -81,6 +123,12 @@ type Node interface {
 	OutputCount() int
 }
 
+// TrainableNode defines the behaviour of a node which can be trained.
+type TrainableNode interface {
+	GetMemory() []float64
+	SetMemory(m []float64)
+}
+
 // NewNetwork creates a new network from the input nodes, checking that the configuration
 // matches.
 func NewNetwork(neurons ...Node) (n Network, err error) {
@@ -101,6 +149,14 @@ func NewNetwork(neurons ...Node) (n Network, err error) {
 
 // Network defines the nodes in an RBF network.
 type Network []Node
+
+func (neurons Network) String() string {
+	b, err := json.Marshal(neurons)
+	if err != nil {
+		panic(err)
+	}
+	return string(b)
+}
 
 // Calculate the output of the network.
 func (neurons Network) Calculate(input []float64) (op []float64, err error) {

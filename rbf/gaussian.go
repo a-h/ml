@@ -26,14 +26,19 @@ func NewGaussianVector(a float64, b []float64, c []float64) (f VectorFunction, e
 	if len(b) != len(c) {
 		err = fmt.Errorf("gaussian: cannot create function with mismatched dimensions (%d and %d)", len(b), len(c))
 	}
-	f = func(v []float64) float64 {
+	f = func(v []float64) (float64, error) {
+		if len(v) != len(c) {
+			err = fmt.Errorf("gaussian: mismached count of centers and deviations (%d, %d) to input vector (%d)",
+				len(b), len(c), len(v))
+			return 0.0, err
+		}
 		var sum float64
 		for i, x := range v {
 			numerator := (b[i] - x) * (b[i] - x)
 			denominator := 2.0 * (c[i] * c[i])
 			sum += numerator / denominator
 		}
-		return a * math.Pow(math.E, -sum)
+		return a * math.Pow(math.E, -sum), nil
 	}
 	return
 }

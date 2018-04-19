@@ -11,12 +11,12 @@ import (
 // NewNode returns a new Node.
 func NewNode(inputCount int, outputCount int) *Node {
 	return &Node{
-		InputWeights:  random.Float64Vector(-100, 100, inputCount),
-		Centroid:      random.Float64Vector(-100, 100, inputCount),
+		InputWeights:  random.Float64Vector(-10, 10, inputCount),
+		Centroid:      random.Float64Vector(-10, 10, inputCount),
 		Distance:      distance.Euclidean,
-		Center:        random.Float64(-100, 100),
-		Width:         random.Float64(-100, 100),
-		OutputWeights: random.Float64Vector(-100, 100, outputCount),
+		Center:        random.Float64(-10, 10),
+		Width:         random.Float64(-10, 10),
+		OutputWeights: random.Float64Vector(-10, 10, outputCount),
 	}
 }
 

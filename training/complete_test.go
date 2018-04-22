@@ -44,8 +44,8 @@ func TestCompleteUsesAllTrainingData(tt *testing.T) {
 	if t.setMemoryCalled != expectedSetMemoryCalled {
 		tt.Errorf("expected %d set memory called, but %d were carried out", expectedSetMemoryCalled, t.setMemoryCalled)
 	}
-	if a.bestErrorCalled != 1 {
-		tt.Errorf("expected bestMemory to be called once, but was called %d", a.bestErrorCalled)
+	if a.bestErrorCalled != 2 {
+		tt.Errorf("expected bestMemory to be called twice, but was called %d", a.bestErrorCalled)
 	}
 }
 

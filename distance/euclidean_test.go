@@ -33,6 +33,12 @@ func TestEuclidean(t *testing.T) {
 			q:        []float64{0, -1},
 			expected: 5,
 		},
+		{
+			name:     "Single value",
+			p:        []float64{1.0},
+			q:        []float64{1.0},
+			expected: 0.0,
+		},
 	}
 
 	for _, test := range tests {

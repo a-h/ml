@@ -22,9 +22,9 @@ func main() {
 
 	imgSize := image.Rect(0, 0, 500, 500)
 
-	anim := gif.GIF{LoopCount: 64}
+	anim := gif.GIF{LoopCount: 128}
 
-	delay := 5 // 50ms
+	delay := 1 // 10ms
 
 	deviationFrom, deviationTo := 0.0, 10.0
 	deviationStep := (deviationFrom - deviationTo) / float64(anim.LoopCount)
@@ -32,14 +32,14 @@ func main() {
 	for i := 0; i < anim.LoopCount; i++ {
 		img := image.NewPaletted(imgSize, palette)
 		center := []float64{0.0, 0.0}
-		deviation := []float64{deviationFrom + deviationStep, deviationFrom + deviationStep}
-		gaussian, err := rbf.NewGaussianVector(1.0, center, deviation)
-		if err != nil {
-			fmt.Println("Failed to create Gaussian function:", err)
-			return
-		}
-		f := func(x, y float64) float64 {
-			return gaussian([]float64{x, y})
+		deviation := deviationFrom + deviationStep
+		gaussian := rbf.NewGaussianVector(1.0, center, deviation)
+		f := func(x, y float64) (z float64) {
+			z, err := gaussian([]float64{x, y})
+			if err != nil {
+				panic(err)
+			}
+			return z
 		}
 		projectionAngle := 30.0
 		d := projection.New(-1.0, 1.0, f, imgSize.Dx(), imgSize.Dy(), projectionAngle)

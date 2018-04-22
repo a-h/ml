@@ -40,6 +40,8 @@ func main() {
 		rbf.NewNode(2, 1),
 		rbf.NewNode(2, 1),
 		rbf.NewNode(2, 1),
+		rbf.NewNode(2, 1),
+		rbf.NewNode(2, 1),
 		rbf.NewBias(1),
 	)
 	if err != nil {
@@ -47,8 +49,9 @@ func main() {
 		os.Exit(-1)
 	}
 
+	var bestNetworkMemory []float64
 	finalError := math.MaxFloat64
-	for i := 0; i < 1000000; i++ {
+	for i := 0; i < 100000; i++ {
 		// Run all of the training data through the network and calculate how good it is.
 		var e float64
 		for _, td := range ideal {
@@ -59,7 +62,7 @@ func main() {
 				os.Exit(-1)
 			}
 			// Calculate the distance away from the expected training result.
-			dist, err := distance.Euclidean(actual, td.Expected)
+			dist, err := distance.SumOfSquares(actual, td.Expected)
 			if err != nil {
 				fmt.Println("Error calculating distance:", err)
 				os.Exit(-1)
@@ -67,20 +70,19 @@ func main() {
 			e += dist
 			//fmt.Printf("%d: %v -> %v expected: %v error: %v\n", i, td.Input, actual, td.Expected, dist)
 		}
+		e = e / float64(len(ideal))
 		// If the error we have is lower than the current error, then keep the new network values.
 		if e < finalError {
 			finalError = e
 			fmt.Println("Improvement. ", e)
-		} else {
-			// Try a different set of values.
-			for _, nd := range network {
-				if trainable, ok := nd.(rbf.TrainableNode); ok {
-					memory := trainable.GetMemory()
-					trainable.SetMemory(random.Float64Vector(-50, 50, len(memory)))
-				}
-			}
+			bestNetworkMemory = network.GetMemory()
 		}
+		// Try a different set of values.
+		network.SetMemory(random.Float64Vector(-10, 10, network.GetMemorySize()))
 	}
+
+	// The best settings are stored in bestNetworkMemory, lets reload them.
+	network.SetMemory(bestNetworkMemory)
 	fmt.Println("Output error:", finalError)
 	fmt.Println(network)
 

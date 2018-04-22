@@ -12,8 +12,8 @@ import (
 func NewGaussian(a, b, c float64) Function {
 	return func(x float64) float64 {
 		numerator := (b - x) * (b - x)
-		denominator := 2.0 * (c * c)
-		return a * math.Pow(math.E, -(numerator/denominator))
+		denominator := 2.0 * c * c
+		return a * math.Exp(-(numerator / denominator))
 	}
 }
 
@@ -22,23 +22,20 @@ func NewGaussian(a, b, c float64) Function {
 // b = center positions for each dimension
 // c = standard deviations for each dimension
 // See https://math.stackexchange.com/questions/112406/gaussian-formula-for-n-dimensions
-func NewGaussianVector(a float64, b []float64, c []float64) (f VectorFunction, err error) {
-	if len(b) != len(c) {
-		err = fmt.Errorf("gaussian: cannot create function with mismatched dimensions (%d and %d)", len(b), len(c))
-	}
+func NewGaussianVector(a float64, b []float64, c float64) (f VectorFunction) {
 	f = func(v []float64) (float64, error) {
-		if len(v) != len(c) {
-			err = fmt.Errorf("gaussian: mismached count of centers and deviations (%d, %d) to input vector (%d)",
-				len(b), len(c), len(v))
+		if len(v) != len(b) {
+			err := fmt.Errorf("gaussian: mismached count of comparison vector (%d) to input vector (%d)",
+				len(b), len(v))
 			return 0.0, err
 		}
 		var sum float64
 		for i, x := range v {
 			numerator := (b[i] - x) * (b[i] - x)
-			denominator := 2.0 * (c[i] * c[i])
+			denominator := 2.0 * c * c
 			sum += numerator / denominator
 		}
-		return a * math.Pow(math.E, -sum), nil
+		return a * math.Exp(-sum), nil
 	}
 	return
 }

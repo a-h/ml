@@ -6,8 +6,8 @@ type ExecutableNode interface {
 	OutputCount() int
 }
 
-// TrainableNode defines the behaviour of a node which can be trained.
-type TrainableNode interface {
+// Trainable defines the behaviour of an item (e.g. node, network) which can be trained.
+type Trainable interface {
 	GetMemorySize() int
 	GetMemory() []float64
 	SetMemory(m []float64)

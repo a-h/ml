@@ -11,11 +11,7 @@ func TestGaussian(t *testing.T) {
 
 func TestGaussianVectorSuccess(t *testing.T) {
 	center := []float64{3.0, 5.0}
-	deviation := []float64{1.0, 1.0}
-	f, err := NewGaussianVector(6.0, center, deviation)
-	if err != nil {
-		t.Fatal("unexpected error executing the NewGaussianVector function:", err)
-	}
+	f := NewGaussianVector(6.0, center, 1.0)
 	actual, err := f([]float64{3.0, 5.0})
 	if err != nil {
 		t.Fatal("unexpected error executing VectorFunction:", err)
@@ -26,21 +22,9 @@ func TestGaussianVectorSuccess(t *testing.T) {
 }
 
 func TestGaussianVectorErrors(t *testing.T) {
-	// Creating the function.
-	_, err := NewGaussianVector(6.0, []float64{3.0, 5.0}, nil)
-	if err == nil {
-		t.Fatal("expected error executing the NewGaussianVector function, but didn't get one")
-	}
-	if err.Error() != "gaussian: cannot create function with mismatched dimensions (2 and 0)" {
-		t.Errorf("unexpected error message: %v", err)
-	}
-
 	// Executing with invalid values.
-	f, err := NewGaussianVector(6.0, []float64{3.0, 5.0}, []float64{1.0, 2.0})
-	if err != nil {
-		t.Fatal("unexpected error executing the NewGaussianVector function:", err)
-	}
-	_, err = f([]float64{})
+	f := NewGaussianVector(6.0, []float64{3.0, 5.0}, 1.0)
+	_, err := f([]float64{})
 	if err == nil {
 		t.Fatal("expected error executing the function with invalid parameters, but didn't get one")
 	}

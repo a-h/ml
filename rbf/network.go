@@ -69,3 +69,32 @@ func (nodes Network) Calculate(input []float64) (op []float64, err error) {
 	}
 	return
 }
+
+func (nodes Network) GetMemorySize() (size int) {
+	for _, n := range nodes {
+		if t, ok := n.(Trainable); ok {
+			size += t.GetMemorySize()
+		}
+	}
+	return
+}
+
+func (nodes Network) GetMemory() (memory []float64) {
+	for _, n := range nodes {
+		if t, ok := n.(Trainable); ok {
+			memory = append(memory, t.GetMemory()...)
+		}
+	}
+	return
+}
+
+func (nodes Network) SetMemory(memory []float64) {
+	var i int
+	for _, n := range nodes {
+		if t, ok := n.(Trainable); ok {
+			j := t.GetMemorySize()
+			t.SetMemory(memory[i : i+j])
+			i += j
+		}
+	}
+}

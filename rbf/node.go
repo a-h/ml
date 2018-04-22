@@ -14,7 +14,6 @@ func NewNode(inputCount int, outputCount int) *Node {
 		InputWeights:  random.Float64Vector(-10, 10, inputCount),
 		Centroid:      random.Float64Vector(-10, 10, inputCount),
 		Distance:      distance.Euclidean,
-		Center:        random.Float64(-10, 10),
 		Width:         random.Float64(-10, 10),
 		OutputWeights: random.Float64Vector(-10, 10, outputCount),
 	}
@@ -26,7 +25,6 @@ type Node struct {
 	Centroid     []float64
 	Distance     distance.Function `json:"-"`
 	// RBF function parameters.
-	Center        float64
 	Width         float64
 	OutputWeights []float64
 }
@@ -53,15 +51,11 @@ func (n *Node) Calculate(input []float64) (op []float64, err error) {
 		scaledInput[i] = iv * n.InputWeights[i]
 	}
 
-	// Calculate the distance against the node's center vector using the specified distance function.
-	var d float64
-	d, err = n.Distance(scaledInput, n.Centroid)
-	if err != nil {
-		return
-	}
-
 	// Scale the distance using the RBF function then multiply by the scalar output weights.
-	output := NewGaussian(1.0, n.Width, n.Center)(d)
+	output, err := NewGaussianVector(1.0, n.Centroid, n.Width)(scaledInput)
+	if err != nil {
+		err = fmt.Errorf("rbf: could not calculate gaussian RBF: %v", err)
+	}
 	op = make([]float64, len(n.OutputWeights))
 	for i, outputWeight := range n.OutputWeights {
 		op[i] = output * outputWeight
@@ -76,15 +70,13 @@ func (n *Node) OutputCount() int {
 
 // GetMemorySize returns the size of the node's internal state.
 func (n *Node) GetMemorySize() int {
-	return len(n.InputWeights) + 2 + len(n.OutputWeights) // 2 = a value for n.Center and n.Width
-
+	return len(n.InputWeights) + 1 + len(n.OutputWeights) // 1 = a value for n.Width
 }
 
 // GetMemory returns the node's internal state as an array.
 func (n *Node) GetMemory() (op []float64) {
 	//TODO: Benchmark this approach and check that it's OK. I think it is given Go's slice internals.
 	op = append(op, n.InputWeights...)
-	op = append(op, n.Center)
 	op = append(op, n.Width)
 	op = append(op, n.OutputWeights...)
 	return
@@ -96,8 +88,6 @@ func (n *Node) SetMemory(m []float64) {
 	var index int
 	n.InputWeights = m[index:len(n.InputWeights)]
 	index = len(n.InputWeights)
-	n.Center = m[index]
-	index++
 	n.Width = m[index]
 	index++
 	n.OutputWeights = m[index:]

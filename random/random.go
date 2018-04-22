@@ -3,10 +3,14 @@ package random
 import (
 	"math/rand"
 	"time"
+
+	"github.com/seehuhn/mt19937"
 )
 
+var rng = rand.New(mt19937.New())
+
 func init() {
-	rand.Seed(time.Now().Unix())
+	rng.Seed(time.Now().UnixNano())
 }
 
 func Float64(min, max float64) float64 {

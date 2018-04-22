@@ -22,3 +22,7 @@ A collection of functions and algorithms for machine learning.
 
 * `rbf.Gaussian`
 * `rbf.RickerWavelet`
+
+## RBF Network
+
+* `rbf.Network`

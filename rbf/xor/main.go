@@ -2,22 +2,19 @@ package main
 
 import (
 	"fmt"
-	"math"
 	"os"
+	"os/signal"
+	"time"
 
 	"github.com/a-h/ml/distance"
-	"github.com/a-h/ml/random"
+
+	"github.com/a-h/ml/training"
+
 	"github.com/a-h/ml/rbf"
 )
 
-// TrainingData is data used to train the RBF network.
-type TrainingData struct {
-	Input    []float64
-	Expected []float64
-}
-
 func main() {
-	ideal := []TrainingData{
+	ideal := []training.Data{
 		{
 			Input:    []float64{0, 0},
 			Expected: []float64{0},
@@ -49,41 +46,28 @@ func main() {
 		os.Exit(-1)
 	}
 
-	var bestNetworkMemory []float64
-	finalError := math.MaxFloat64
-	for i := 0; i < 100000; i++ {
-		// Run all of the training data through the network and calculate how good it is.
-		var e float64
-		for _, td := range ideal {
-			// Execute the network against the training data.
-			actual, err := network.Calculate(td.Input)
-			if err != nil {
-				fmt.Println("Error calculating network output:", err)
-				os.Exit(-1)
-			}
-			// Calculate the distance away from the expected training result.
-			dist, err := distance.SumOfSquares(actual, td.Expected)
-			if err != nil {
-				fmt.Println("Error calculating distance:", err)
-				os.Exit(-1)
-			}
-			e += dist
-			//fmt.Printf("%d: %v -> %v expected: %v error: %v\n", i, td.Input, actual, td.Expected, dist)
-		}
-		e = e / float64(len(ideal))
-		// If the error we have is lower than the current error, then keep the new network values.
-		if e < finalError {
-			finalError = e
-			fmt.Println("Improvement. ", e)
-			bestNetworkMemory = network.GetMemory()
-		}
-		// Try a different set of values.
-		network.SetMemory(random.Float64Vector(-10, 10, network.GetMemorySize()))
+	algorithm := training.NewRandomGreedy(network.GetMemory())
+	receiveStopper, c := training.StopWhenChannelReceives()
+	relay := make(chan os.Signal, 1)
+	go func() {
+		fmt.Println("Press Ctrl-C to shut down.")
+		<-relay
+		fmt.Println("Shutting down.")
+		c <- true
+	}()
+	signal.Notify(relay, os.Interrupt)
+	start := time.Now()
+	iterations, err := training.Complete(network, ideal, algorithm, distance.Euclidean, receiveStopper, training.StopWhenErrorIsLessThan(0.1))
+	if err != nil {
+		fmt.Println("Training error:", err)
+		os.Exit(-1)
 	}
 
-	// The best settings are stored in bestNetworkMemory, lets reload them.
-	network.SetMemory(bestNetworkMemory)
-	fmt.Println("Output error:", finalError)
+	network.SetMemory(algorithm.BestMemory())
+	fmt.Println("Time:", time.Now().Sub(start))
+	fmt.Println("Iterations:", iterations)
+	fmt.Println("Output error:", algorithm.BestError())
+
 	fmt.Println(network)
 
 	for _, v := range ideal {

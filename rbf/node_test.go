@@ -3,8 +3,6 @@ package rbf
 import (
 	"reflect"
 	"testing"
-
-	"github.com/a-h/ml/distance"
 )
 
 func TestNode(t *testing.T) {
@@ -18,7 +16,6 @@ func TestNode(t *testing.T) {
 			name: "returns RBF distance from the input",
 			node: &Node{
 				Width:         0.5,
-				Distance:      distance.Euclidean,
 				Centroid:      []float64{1.0},
 				InputWeights:  []float64{1.0},
 				OutputWeights: []float64{1.0},

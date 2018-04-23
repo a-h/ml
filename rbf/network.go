@@ -70,6 +70,7 @@ func (nodes Network) Calculate(input []float64) (op []float64, err error) {
 	return
 }
 
+// GetMemorySize returns the size of the memory of the network.
 func (nodes Network) GetMemorySize() (size int) {
 	for _, n := range nodes {
 		if t, ok := n.(Trainable); ok {
@@ -79,6 +80,7 @@ func (nodes Network) GetMemorySize() (size int) {
 	return
 }
 
+// GetMemory returns the tunable parameters of the network.
 func (nodes Network) GetMemory() (memory []float64) {
 	for _, n := range nodes {
 		if t, ok := n.(Trainable); ok {
@@ -88,6 +90,7 @@ func (nodes Network) GetMemory() (memory []float64) {
 	return
 }
 
+// SetMemory sets the tunable parameters of the network.
 func (nodes Network) SetMemory(memory []float64) {
 	var i int
 	for _, n := range nodes {

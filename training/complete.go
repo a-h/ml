@@ -1,6 +1,7 @@
 package training
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/a-h/ml/distance"
@@ -47,6 +48,19 @@ func shouldStop(iterations int, e float64, stoppers []Stopper) bool {
 
 // A Stopper provides a way to stop the training.
 type Stopper func(iterations int, ee float64) bool
+
+// StopWhenContextCancelled stops training if the context is cancelled.
+// signal.Notify(c, os.Interrupt)
+func StopWhenContextCancelled(ctx context.Context) Stopper {
+	return func(iterations int, e float64) bool {
+		select {
+		case <-ctx.Done():
+			return true
+		default:
+			return false
+		}
+	}
+}
 
 // StopWhenChannelReceives stops training if a value is received on the channel returned by the function.
 // For example, the returned channel could be connected to OS signals for graceful shutdown:

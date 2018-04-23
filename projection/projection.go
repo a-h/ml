@@ -77,8 +77,8 @@ func (p Projection) Draw(img draw.Image) {
 			c := image.Point{int(cx), int(cy)}
 			d := image.Point{int(dx), int(dy)}
 
-			p := raster.NewFilledPolygon(colornames.Blue, colornames.Lightblue, a, b, c, d)
-			p.Draw(img)
+			pg := raster.NewFilledPolygon(p.LineColor, p.FillColor, a, b, c, d)
+			pg.Draw(img)
 		}
 	}
 }

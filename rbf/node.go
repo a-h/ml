@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/a-h/ml/distance"
 	"github.com/a-h/ml/random"
 )
 
@@ -13,7 +12,6 @@ func NewNode(inputCount int, outputCount int) *Node {
 	return &Node{
 		InputWeights:  random.Float64Vector(-10, 10, inputCount),
 		Centroid:      random.Float64Vector(-10, 10, inputCount),
-		Distance:      distance.Euclidean,
 		Width:         random.Float64(-10, 10),
 		OutputWeights: random.Float64Vector(-10, 10, outputCount),
 	}
@@ -23,7 +21,6 @@ func NewNode(inputCount int, outputCount int) *Node {
 type Node struct {
 	InputWeights []float64
 	Centroid     []float64
-	Distance     distance.Function `json:"-"`
 	// RBF function parameters.
 	Width         float64
 	OutputWeights []float64

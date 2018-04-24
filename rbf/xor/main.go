@@ -2,11 +2,15 @@ package main
 
 import (
 	"fmt"
+	"image"
+	"image/color"
+	"image/gif"
 	"os"
 	"os/signal"
 	"time"
 
 	"github.com/a-h/ml/distance"
+	"github.com/a-h/ml/projection"
 
 	"github.com/a-h/ml/training"
 
@@ -78,4 +82,34 @@ func main() {
 		}
 		fmt.Printf("input: %v, expected: %v, actual: %v\n", v.Input, v.Expected, actual)
 	}
+
+	f := func(x, y float64) (z float64) {
+		op, err := network.Calculate([]float64{x, y})
+		if err != nil {
+			panic("failed to draw")
+		}
+		return op[0]
+	}
+	draw3d(-1, 1, f)
+}
+
+var palette = []color.Color{color.White, color.Black}
+
+func draw3d(min, max float64, f func(x, y float64) (z float64)) {
+	file, err := os.Create("op.gif")
+	if err != nil {
+		fmt.Println("Failed to create op.gif file:", err)
+		return
+	}
+
+	imgSize := image.Rect(0, 0, 750, 500)
+
+	img := image.NewPaletted(imgSize, palette)
+
+	projectionAngle := 30.0
+	d := projection.New(min, max, f, imgSize.Dx(), imgSize.Dy(), projectionAngle)
+	d.Scale = 10.0
+	d.Draw(img)
+
+	gif.Encode(file, img, nil)
 }

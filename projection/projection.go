@@ -53,21 +53,22 @@ func New(min, max float64, function func(x, y float64) float64, width, height in
 }
 
 func (p Projection) Draw(img draw.Image) {
+	r := p.MaximumValue - p.MinimumValue
 	for i := 0; i < p.Cells; i++ {
 		for j := 0; j < p.Cells; j++ {
-			ax, ay, ok := corner(p.Width, p.Height, p.cosAngle, p.sinAngle, p.Scale, i+1, j, p.Cells, p.Function)
+			ax, ay, ok := corner(r, p.Width, p.Height, p.cosAngle, p.sinAngle, p.Scale, i+1, j, p.Cells, p.Function)
 			if !ok {
 				continue
 			}
-			bx, by, ok := corner(p.Width, p.Height, p.cosAngle, p.sinAngle, p.Scale, i, j, p.Cells, p.Function)
+			bx, by, ok := corner(r, p.Width, p.Height, p.cosAngle, p.sinAngle, p.Scale, i, j, p.Cells, p.Function)
 			if !ok {
 				continue
 			}
-			cx, cy, ok := corner(p.Width, p.Height, p.cosAngle, p.sinAngle, p.Scale, i, j+1, p.Cells, p.Function)
+			cx, cy, ok := corner(r, p.Width, p.Height, p.cosAngle, p.sinAngle, p.Scale, i, j+1, p.Cells, p.Function)
 			if !ok {
 				continue
 			}
-			dx, dy, ok := corner(p.Width, p.Height, p.cosAngle, p.sinAngle, p.Scale, i+1, j+1, p.Cells, p.Function)
+			dx, dy, ok := corner(r, p.Width, p.Height, p.cosAngle, p.sinAngle, p.Scale, i+1, j+1, p.Cells, p.Function)
 			if !ok {
 				continue
 			}
@@ -83,8 +84,7 @@ func (p Projection) Draw(img draw.Image) {
 	}
 }
 
-func corner(width, height int, cosAngle, sinAngle float64, zscale float64, i, j int, cells int, f func(float64, float64) float64) (float64, float64, bool) {
-	xyrange := 30.0
+func corner(xyrange float64, width, height int, cosAngle, sinAngle float64, zscale float64, i, j int, cells int, f func(float64, float64) float64) (float64, float64, bool) {
 	xyscale := float64(width) / 2.0 / xyrange
 
 	x := xyrange * (float64(i)/float64(cells) - 0.5)

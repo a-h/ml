@@ -31,13 +31,17 @@ type RandomGreedy struct {
 }
 
 // Next records the error from the previous set of values, and returns a new set of values to try.
-func (rg *RandomGreedy) Next(e float64) []float64 {
+func (rg *RandomGreedy) Next(ev Evaluator) ([]float64, error) {
+	e, err := ev()
+	if err != nil {
+		return rg.current, err
+	}
 	if e < rg.e {
 		rg.best = rg.current
 		rg.e = e
 	}
 	rg.current = random.Float64Vector(rg.Min, rg.Max, len(rg.current))
-	return rg.current
+	return rg.current, nil
 }
 
 // BestError returns the best (lowest) error discovered by training.

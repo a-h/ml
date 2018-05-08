@@ -83,10 +83,10 @@ type algorithmMock struct {
 	e                float64
 }
 
-func (am *algorithmMock) Next(e float64) []float64 {
+func (am *algorithmMock) Next(ev Evaluator) (updatedMemory []float64, err error) {
 	am.nextCalled++
-	am.e = e
-	return am.memory
+	am.e, err = ev()
+	return am.memory, err
 }
 func (am *algorithmMock) BestMemory() (memory []float64) {
 	am.bestMemoryCalled++

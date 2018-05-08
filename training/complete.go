@@ -13,20 +13,13 @@ import (
 // error etc.
 func Complete(t Trainee, d []Data, a Algorithm, dist distance.Function, stoppers ...Stopper) (iterations int, err error) {
 	for {
-		var e float64
-		for _, td := range d {
-			actual, err := t.Calculate(td.Input)
-			if err != nil {
-				return iterations, fmt.Errorf("error training data: %v", err)
-			}
-			dist, err := dist(actual, td.Expected)
-			if err != nil {
-				return iterations, fmt.Errorf("error calculating distance: %v", err)
-			}
-			e += dist
+		e := func() (e float64, err error) {
+			return evaluateTrainee(t, d, dist)
 		}
-		e = e / float64(len(d))
-		updatedMemory := a.Next(e)
+		updatedMemory, err := a.Next(e)
+		if err != nil {
+			return iterations, fmt.Errorf("training.Complete: error at iteration %v: %v", iterations, err)
+		}
 		t.SetMemory(updatedMemory)
 
 		iterations++
@@ -34,6 +27,22 @@ func Complete(t Trainee, d []Data, a Algorithm, dist distance.Function, stoppers
 			break
 		}
 	}
+	return
+}
+
+func evaluateTrainee(t Trainee, d []Data, dist distance.Function) (e float64, err error) {
+	for _, td := range d {
+		actual, err := t.Calculate(td.Input)
+		if err != nil {
+			return e, fmt.Errorf("error training data: %v", err)
+		}
+		de, err := dist(actual, td.Expected)
+		if err != nil {
+			return e, fmt.Errorf("error calculating distance: %v", err)
+		}
+		e += de
+	}
+	e = e / float64(len(d))
 	return
 }
 

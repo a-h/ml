@@ -9,9 +9,12 @@ type Trainee interface {
 	SetMemory(m []float64)
 }
 
+// An Evaluator executes a run of the training data against the trainee and determines the error.
+type Evaluator func() (e float64, err error)
+
 // Algorithm defines a training algorith, e.g. RandomGreedy.
 type Algorithm interface {
-	Next(e float64) []float64
+	Next(ev Evaluator) (updatedMemory []float64, err error)
 	BestMemory() (memory []float64)
 	BestError() (e float64)
 }

@@ -37,6 +37,16 @@ func TestProbability(t *testing.T) {
 			given:    []Category{categoryBlueEyes},
 			expected: float64(2) / float64(3),
 		},
+		{
+			name: "dog, cat or lizard",
+			data: []Datum{
+				NewDatum("Felix", categoryCat),
+				NewDatum("Shep", categoryDog),
+			},
+			is:       Category(3),             // Lizard
+			given:    []Category{Category(4)}, // Orangutang
+			expected: 0.0,
+		},
 	}
 
 	for _, test := range tests {
